@@ -1,0 +1,43 @@
+{
+	"name": "thought-catcher",
+	"version": "1.0.0",
+	"description": "Thought-Catcher is a lightning-fast desktop idea capture tool designed to eliminate cognitive friction.",
+	"main": "main.js",
+	"author": "Moditha",
+	"license": "MIT",
+	"scripts": {
+		"start": "electron .",
+		"clean": "rimraf dist build",
+		"pack": "npm run clean && electron-builder --dir",
+		"dist": "npm run clean && electron-builder",
+		"dist:win": "npm run clean && electron-builder --win"
+	},
+	"keywords": [],
+	"devDependencies": {
+		"electron": "^40.4.0",
+		"electron-builder": "^26.7.0",
+		"rimraf": "^6.1.2"
+	},
+	"build": {
+		"appId": "com.moditha.thoughtcatcher",
+		"productName": "Thought Catcher",
+		"directories": {
+			"output": "dist"
+		},
+		"files": [
+			"**/*",
+			"!dist/*",
+			"!build/*"
+		],
+		"win": {
+			"target": "nsis",
+			"artifactName": "Thought-Catcher-Setup-${version}.${ext}"
+		},
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": true,
+			"createDesktopShortcut": true,
+			"createStartMenuShortcut": true
+		}
+	}
+}
