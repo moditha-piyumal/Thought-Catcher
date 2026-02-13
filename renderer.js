@@ -1,4 +1,12 @@
 const captureInput = document.getElementById("captureInput");
+const captureButton = document.getElementById("captureButton");
+
+function captureIdea() {
+	const ideaText = captureInput.value;
+	console.log(`Idea captured: ${ideaText}`);
+	captureInput.value = "";
+	captureInput.focus();
+}
 
 window.addEventListener("DOMContentLoaded", () => {
 	captureInput.focus();
@@ -6,6 +14,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
 captureInput.addEventListener("keydown", (event) => {
 	if (event.ctrlKey && event.key === "Enter") {
-		console.log("Idea captured");
+		event.preventDefault();
+		captureIdea();
 	}
+});
+
+captureButton.addEventListener("click", () => {
+	captureIdea();
 });
