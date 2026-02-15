@@ -38,6 +38,38 @@
             border-color: #c7c7c7;
         }
 
+        .field {
+            margin-top: 10px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #4a4a4a;
+        }
+
+        select,
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font: inherit;
+            background: #fff;
+        }
+
+        .new-tag-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .new-tag-row input {
+            flex: 1;
+        }
+
         button {
             margin-top: 10px;
             padding: 8px 14px;
@@ -48,11 +80,31 @@
             font: inherit;
             cursor: pointer;
         }
+
+        #addTagButton {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
     <div class="capture-panel">
         <textarea id="captureInput" placeholder="Capture a thought before it disappears..." autofocus></textarea>
+
+        <div class="field">
+            <label for="tagSelect">Tag (optional)</label>
+            <select id="tagSelect">
+                <option value="">No tag</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="newTagInput">New Tag</label>
+            <div class="new-tag-row">
+                <input id="newTagInput" type="text" />
+                <button id="addTagButton" type="button">Add</button>
+            </div>
+        </div>
+
         <button id="captureButton" type="button">Capture</button>
     </div>
     <script src="renderer.js"></script>

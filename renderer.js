@@ -1,5 +1,8 @@
 const captureInput = document.getElementById("captureInput");
 const captureButton = document.getElementById("captureButton");
+const tagSelect = document.getElementById("tagSelect");
+const newTagInput = document.getElementById("newTagInput");
+const addTagButton = document.getElementById("addTagButton");
 
 const DRAFT_SAVE_DELAY_MS = 600;
 let draftSaveTimer = null;
@@ -16,10 +19,46 @@ function scheduleDraftSave() {
 	}, DRAFT_SAVE_DELAY_MS);
 }
 
+async function populateTags(selectedTag = "") {
+	const tags = await window.ideaAPI.getTags();
+	tagSelect.innerHTML = "";
+
+	const defaultOption = document.createElement("option");
+	defaultOption.value = "";
+	defaultOption.textContent = "No tag";
+	tagSelect.appendChild(defaultOption);
+
+	tags.forEach((tag) => {
+		const option = document.createElement("option");
+		option.value = tag;
+		option.textContent = tag;
+		tagSelect.appendChild(option);
+	});
+
+	tagSelect.value = tags.includes(selectedTag) ? selectedTag : "";
+}
+
+async function handleCreateTag() {
+	const rawTagName = newTagInput.value;
+	const tagName = rawTagName.trim();
+	if (!tagName) {
+		return;
+	}
+
+	await window.ideaAPI.createTag(tagName);
+	await populateTags(tagName);
+	newTagInput.value = "";
+	newTagInput.focus();
+}
+
 async function captureIdea() {
 	try {
-		await window.ideaAPI.saveIdea(captureInput.value);
+		await window.ideaAPI.saveIdea({
+			text: captureInput.value,
+			tag: tagSelect.value,
+		});
 		captureInput.value = "";
+		tagSelect.value = "";
 		await window.ideaAPI.saveDraft("");
 		captureInput.focus();
 
@@ -39,6 +78,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 		captureInput.value = draftText;
 	}
 
+	await populateTags();
+
 	captureInput.focus();
 	const cursorPosition = captureInput.value.length;
 	captureInput.setSelectionRange(cursorPosition, cursorPosition);
@@ -57,4 +98,15 @@ captureInput.addEventListener("keydown", (event) => {
 
 captureButton.addEventListener("click", () => {
 	captureIdea();
+});
+
+addTagButton.addEventListener("click", () => {
+	handleCreateTag();
+});
+
+newTagInput.addEventListener("keydown", (event) => {
+	if (event.key === "Enter") {
+		event.preventDefault();
+		handleCreateTag();
+	}
 });
