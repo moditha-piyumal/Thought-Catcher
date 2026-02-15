@@ -3,6 +3,7 @@ const fs = require("fs");
 const { app, BrowserWindow, ipcMain } = require("electron");
 
 const ideasFilePath = path.join(app.getPath("userData"), "ideas.json");
+const draftFilePath = path.join(app.getPath("userData"), "draft.json");
 
 async function ensureIdeasFile() {
 	try {
@@ -43,6 +44,33 @@ ipcMain.handle("save-idea", async (event, ideaText) => {
 	ideas.push(idea);
 	await fs.promises.writeFile(ideasFilePath, JSON.stringify(ideas, null, 2), "utf8");
 	return idea;
+});
+
+ipcMain.handle("save-draft", async (event, text) => {
+	if (!text || text.trim() === "") {
+		try {
+			await fs.promises.unlink(draftFilePath);
+		} catch {
+			// Ignore missing file or delete errors.
+		}
+		return;
+	}
+
+	const draftPayload = {
+		text,
+	};
+
+	await fs.promises.writeFile(draftFilePath, JSON.stringify(draftPayload, null, 2), "utf8");
+});
+
+ipcMain.handle("load-draft", async () => {
+	try {
+		const fileContents = await fs.promises.readFile(draftFilePath, "utf8");
+		const draft = JSON.parse(fileContents);
+		return typeof draft.text === "string" ? draft.text : "";
+	} catch {
+		return "";
+	}
 });
 
 app.whenReady().then(createWindow);
