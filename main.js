@@ -4,6 +4,7 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 
 const ideasFilePath = path.join(app.getPath("userData"), "ideas.json");
 const draftFilePath = path.join(app.getPath("userData"), "draft.json");
+const tagsFilePath = path.join(app.getPath("userData"), "tags.json");
 
 async function ensureIdeasFile() {
 	try {
@@ -11,6 +12,25 @@ async function ensureIdeasFile() {
 	} catch {
 		await fs.promises.writeFile(ideasFilePath, "[]", "utf8");
 	}
+}
+
+async function ensureTagsFile() {
+	try {
+		await fs.promises.access(tagsFilePath);
+	} catch {
+		await fs.promises.writeFile(tagsFilePath, "[]", "utf8");
+	}
+}
+
+async function readTags() {
+	await ensureTagsFile();
+	const fileContents = await fs.promises.readFile(tagsFilePath, "utf8");
+	const parsedTags = JSON.parse(fileContents);
+	return Array.isArray(parsedTags) ? parsedTags : [];
+}
+
+async function writeTags(tags) {
+	await fs.promises.writeFile(tagsFilePath, JSON.stringify(tags, null, 2), "utf8");
 }
 
 function createWindow() {
@@ -29,7 +49,7 @@ function createWindow() {
 	win.loadFile("index.html");
 }
 
-ipcMain.handle("save-idea", async (event, ideaText) => {
+ipcMain.handle("save-idea", async (event, ideaText, selectedTag) => {
 	await ensureIdeasFile();
 
 	const fileContents = await fs.promises.readFile(ideasFilePath, "utf8");
@@ -38,12 +58,36 @@ ipcMain.handle("save-idea", async (event, ideaText) => {
 		id: Date.now().toString(),
 		text: ideaText,
 		createdAt: new Date().toISOString(),
-		tag: null,
+		tag: selectedTag || null,
 	};
 
 	ideas.push(idea);
 	await fs.promises.writeFile(ideasFilePath, JSON.stringify(ideas, null, 2), "utf8");
 	return idea;
+});
+
+ipcMain.handle("get-tags", async () => {
+	return readTags();
+});
+
+ipcMain.handle("create-tag", async (event, tagName) => {
+	if (typeof tagName !== "string") {
+		return readTags();
+	}
+
+	const trimmedTagName = tagName.trim();
+	if (!trimmedTagName) {
+		return readTags();
+	}
+
+	const tags = await readTags();
+	if (tags.includes(trimmedTagName)) {
+		return tags;
+	}
+
+	tags.push(trimmedTagName);
+	await writeTags(tags);
+	return tags;
 });
 
 ipcMain.handle("save-draft", async (event, text) => {

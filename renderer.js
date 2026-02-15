@@ -1,7 +1,9 @@
 const captureInput = document.getElementById("captureInput");
+const tagSelect = document.getElementById("tagSelect");
 const captureButton = document.getElementById("captureButton");
 
 const DRAFT_SAVE_DELAY_MS = 600;
+const CREATE_TAG_OPTION_VALUE = "__create_new_tag__";
 let draftSaveTimer = null;
 
 function scheduleDraftSave() {
@@ -16,10 +18,69 @@ function scheduleDraftSave() {
 	}, DRAFT_SAVE_DELAY_MS);
 }
 
+function populateTagDropdown(tags, selectedTag = null) {
+	tagSelect.innerHTML = "";
+
+	const noTagOption = document.createElement("option");
+	noTagOption.value = "";
+	noTagOption.textContent = "No tag";
+	tagSelect.appendChild(noTagOption);
+
+	tags.forEach((tag) => {
+		const option = document.createElement("option");
+		option.value = tag;
+		option.textContent = tag;
+		tagSelect.appendChild(option);
+	});
+
+	const createTagOption = document.createElement("option");
+	createTagOption.value = CREATE_TAG_OPTION_VALUE;
+	createTagOption.textContent = "+ Create New Tag";
+	tagSelect.appendChild(createTagOption);
+
+	tagSelect.value = selectedTag && tags.includes(selectedTag) ? selectedTag : "";
+}
+
+async function loadTags(selectedTag = null) {
+	const tags = await window.ideaAPI.getTags();
+	populateTagDropdown(tags, selectedTag);
+	return tags;
+}
+
+async function createAndSelectTag(tagName) {
+	await window.ideaAPI.createTag(tagName);
+	await loadTags(tagName);
+}
+
+function handleTagSelection() {
+	if (tagSelect.value !== CREATE_TAG_OPTION_VALUE) {
+		return;
+	}
+
+	const newTagName = prompt("Enter new tag name:");
+	if (newTagName === null) {
+		tagSelect.value = "";
+		return;
+	}
+
+	const trimmedTagName = newTagName.trim();
+	if (!trimmedTagName) {
+		tagSelect.value = "";
+		return;
+	}
+
+	createAndSelectTag(trimmedTagName).catch((error) => {
+		console.error("Failed to create tag:", error);
+		tagSelect.value = "";
+	});
+}
+
 async function captureIdea() {
 	try {
-		await window.ideaAPI.saveIdea(captureInput.value);
+		const selectedTag = tagSelect.value && tagSelect.value !== CREATE_TAG_OPTION_VALUE ? tagSelect.value : null;
+		await window.ideaAPI.saveIdea(captureInput.value, selectedTag);
 		captureInput.value = "";
+		tagSelect.value = "";
 		await window.ideaAPI.saveDraft("");
 		captureInput.focus();
 
@@ -39,6 +100,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 		captureInput.value = draftText;
 	}
 
+	await loadTags();
+
 	captureInput.focus();
 	const cursorPosition = captureInput.value.length;
 	captureInput.setSelectionRange(cursorPosition, cursorPosition);
@@ -47,6 +110,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 captureInput.addEventListener("input", () => {
 	scheduleDraftSave();
 });
+
+tagSelect.addEventListener("change", handleTagSelection);
 
 captureInput.addEventListener("keydown", (event) => {
 	if (event.ctrlKey && event.key === "Enter") {
