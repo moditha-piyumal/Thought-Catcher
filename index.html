@@ -38,6 +38,26 @@
             border-color: #c7c7c7;
         }
 
+        .tag-field {
+            margin-top: 10px;
+        }
+
+        .tag-field label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .tag-field select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font: inherit;
+            background: #fff;
+        }
+
         button {
             margin-top: 10px;
             padding: 8px 14px;
@@ -53,6 +73,10 @@
 <body>
     <div class="capture-panel">
         <textarea id="captureInput" placeholder="Capture a thought before it disappears..." autofocus></textarea>
+        <div class="tag-field">
+            <label for="tagSelect">Tag (optional)</label>
+            <select id="tagSelect"></select>
+        </div>
         <button id="captureButton" type="button">Capture</button>
     </div>
     <script src="renderer.js"></script>
