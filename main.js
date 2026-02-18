@@ -27,7 +27,7 @@ async function ensureTagsFile() {
 function createWindow() {
 	const win = new BrowserWindow({
 		width: 600,
-		height: 420,
+		height: 600,
 		resizable: true,
 		autoHideMenuBar: true,
 		webPreferences: {
@@ -82,7 +82,11 @@ ipcMain.handle("save-idea", async (event, payload) => {
 	};
 
 	ideas.push(idea);
-	await fs.promises.writeFile(ideasFilePath, JSON.stringify(ideas, null, 2), "utf8");
+	await fs.promises.writeFile(
+		ideasFilePath,
+		JSON.stringify(ideas, null, 2),
+		"utf8",
+	);
 	return idea;
 });
 
@@ -103,7 +107,11 @@ ipcMain.handle("delete-idea", async (event, ideaId) => {
 		const filteredIdeas = Array.isArray(ideas)
 			? ideas.filter((idea) => idea && idea.id !== ideaId)
 			: [];
-		await fs.promises.writeFile(ideasFilePath, JSON.stringify(filteredIdeas, null, 2), "utf8");
+		await fs.promises.writeFile(
+			ideasFilePath,
+			JSON.stringify(filteredIdeas, null, 2),
+			"utf8",
+		);
 		return filteredIdeas;
 	} catch {
 		return [];
@@ -132,7 +140,11 @@ ipcMain.handle("create-tag", async (event, tagName) => {
 	}
 
 	tags.push(normalizedTag);
-	await fs.promises.writeFile(tagsFilePath, JSON.stringify(tags, null, 2), "utf8");
+	await fs.promises.writeFile(
+		tagsFilePath,
+		JSON.stringify(tags, null, 2),
+		"utf8",
+	);
 	return tags;
 });
 
@@ -150,7 +162,11 @@ ipcMain.handle("save-draft", async (event, text) => {
 		text,
 	};
 
-	await fs.promises.writeFile(draftFilePath, JSON.stringify(draftPayload, null, 2), "utf8");
+	await fs.promises.writeFile(
+		draftFilePath,
+		JSON.stringify(draftPayload, null, 2),
+		"utf8",
+	);
 });
 
 ipcMain.handle("load-draft", async () => {
