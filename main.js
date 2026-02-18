@@ -27,7 +27,7 @@ async function ensureTagsFile() {
 function createWindow() {
 	const win = new BrowserWindow({
 		width: 600,
-		height: 600,
+		height: 800,
 		resizable: true,
 		autoHideMenuBar: true,
 		webPreferences: {
@@ -132,7 +132,7 @@ ipcMain.handle("update-idea-tag", async (event, { ideaId, newTag }) => {
 					};
 				}
 				return idea;
-		  })
+			})
 		: [];
 
 	await fs.promises.writeFile(
@@ -209,7 +209,7 @@ ipcMain.handle("delete-tag", async (event, tagName) => {
 					};
 				}
 				return idea;
-		  })
+			})
 		: [];
 	await fs.promises.writeFile(
 		ideasFilePath,

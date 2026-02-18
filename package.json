@@ -21,6 +21,7 @@
 	"build": {
 		"appId": "com.moditha.thoughtcatcher",
 		"productName": "Thought Catcher",
+		"icon": "assets/catcher.ico",
 		"directories": {
 			"output": "dist"
 		},
@@ -31,7 +32,8 @@
 		],
 		"win": {
 			"target": "nsis",
-			"artifactName": "Thought-Catcher-Setup-${version}.${ext}"
+			"artifactName": "Thought-Catcher-Setup-${version}.${ext}",
+			"icon": "assets/catcher.ico"
 		},
 		"nsis": {
 			"oneClick": false,
