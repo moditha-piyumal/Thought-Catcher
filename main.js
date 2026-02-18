@@ -148,6 +148,50 @@ ipcMain.handle("create-tag", async (event, tagName) => {
 	return tags;
 });
 
+ipcMain.handle("delete-tag", async (event, tagName) => {
+	if (tagName === "Untagged") {
+		return;
+	}
+
+	await ensureTagsFile();
+	await ensureIdeasFile();
+
+	const normalizedTag = typeof tagName === "string" ? tagName.trim() : "";
+	if (!normalizedTag) {
+		return;
+	}
+
+	const tagsFileContents = await fs.promises.readFile(tagsFilePath, "utf8");
+	const tags = JSON.parse(tagsFileContents);
+	const updatedTags = Array.isArray(tags)
+		? tags.filter((tag) => tag !== normalizedTag)
+		: [];
+	await fs.promises.writeFile(
+		tagsFilePath,
+		JSON.stringify(updatedTags, null, 2),
+		"utf8",
+	);
+
+	const ideasFileContents = await fs.promises.readFile(ideasFilePath, "utf8");
+	const ideas = JSON.parse(ideasFileContents);
+	const updatedIdeas = Array.isArray(ideas)
+		? ideas.map((idea) => {
+				if (idea && idea.tag === normalizedTag) {
+					return {
+						...idea,
+						tag: null,
+					};
+				}
+				return idea;
+		  })
+		: [];
+	await fs.promises.writeFile(
+		ideasFilePath,
+		JSON.stringify(updatedIdeas, null, 2),
+		"utf8",
+	);
+});
+
 ipcMain.handle("save-draft", async (event, text) => {
 	if (!text || text.trim() === "") {
 		try {
