@@ -4,6 +4,8 @@ contextBridge.exposeInMainWorld("ideaAPI", {
 	saveIdea: (idea) => ipcRenderer.invoke("save-idea", idea),
 	getIdeas: () => ipcRenderer.invoke("get-ideas"),
 	deleteIdea: (ideaId) => ipcRenderer.invoke("delete-idea", ideaId),
+	updateIdeaTag: (ideaId, newTag) =>
+		ipcRenderer.invoke("update-idea-tag", { ideaId, newTag }),
 	openManagerWindow: () => ipcRenderer.invoke("open-manager-window"),
 	saveDraft: (text) => ipcRenderer.invoke("save-draft", text),
 	loadDraft: () => ipcRenderer.invoke("load-draft"),
