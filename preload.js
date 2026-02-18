@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld("ideaAPI", {
 	loadDraft: () => ipcRenderer.invoke("load-draft"),
 	getTags: () => ipcRenderer.invoke("get-tags"),
 	createTag: (tagName) => ipcRenderer.invoke("create-tag", tagName),
+	deleteTag: (tagName) => ipcRenderer.invoke("delete-tag", tagName),
 });

@@ -53,6 +53,17 @@ async function deleteIdea(ideaId, cardElement) {
 	}
 }
 
+async function deleteTag(tagName) {
+	const shouldDelete = window.confirm("Delete this tag? Ideas will become untagged.");
+	if (!shouldDelete) {
+		return;
+	}
+
+	await window.ideaAPI.deleteTag(tagName);
+	allIdeas = await window.ideaAPI.getIdeas();
+	renderIdeas(searchInput.value);
+}
+
 function createIdeaCard(idea) {
 	const card = document.createElement("div");
 	card.className = "idea-card";
@@ -118,10 +129,35 @@ function renderIdeas(searchTerm = "") {
 		const groupSection = document.createElement("section");
 		groupSection.className = "tag-group";
 
+		const headingRow = document.createElement("div");
+		headingRow.style.display = "flex";
+		headingRow.style.alignItems = "center";
+		headingRow.style.justifyContent = "space-between";
+		headingRow.style.gap = "8px";
+		headingRow.style.marginBottom = "8px";
+
 		const heading = document.createElement("h2");
 		heading.className = "tag-heading";
+		heading.style.margin = "0";
 		heading.textContent = group.tagName;
-		groupSection.appendChild(heading);
+		headingRow.appendChild(heading);
+
+		if (group.tagName !== "Untagged") {
+			const deleteTagButton = document.createElement("button");
+			deleteTagButton.type = "button";
+			deleteTagButton.className = "delete-button";
+			deleteTagButton.style.padding = "2px 6px";
+			deleteTagButton.style.opacity = "0.8";
+			deleteTagButton.textContent = "Delete Tag";
+			deleteTagButton.addEventListener("click", () => {
+				deleteTag(group.tagName).catch((error) => {
+					console.error("Failed to delete tag:", error);
+				});
+			});
+			headingRow.appendChild(deleteTagButton);
+		}
+
+		groupSection.appendChild(headingRow);
 
 		group.ideas.forEach((idea) => {
 			groupSection.appendChild(createIdeaCard(idea));
