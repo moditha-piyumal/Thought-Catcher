@@ -2,6 +2,7 @@ const searchInput = document.getElementById("searchInput");
 const ideaContainer = document.getElementById("ideaContainer");
 
 let allIdeas = [];
+let allTags = [];
 
 function formatDate(isoDate) {
 	if (!isoDate) {
@@ -71,9 +72,33 @@ function createIdeaCard(idea) {
 	const cardTop = document.createElement("div");
 	cardTop.className = "card-top";
 
-	const tagLabel = document.createElement("span");
-	tagLabel.className = "tag-label";
-	tagLabel.textContent = idea.tag && idea.tag.trim() ? idea.tag : "Untagged";
+	const tagSelect = document.createElement("select");
+	tagSelect.className = "tag-label";
+	tagSelect.style.border = "1px solid rgba(31, 42, 55, 0.15)";
+	tagSelect.style.background = "rgba(255, 255, 255, 0.7)";
+	tagSelect.style.cursor = "pointer";
+
+	const noTagOption = document.createElement("option");
+	noTagOption.value = "";
+	noTagOption.textContent = "No tag";
+	tagSelect.appendChild(noTagOption);
+
+	allTags.forEach((tag) => {
+		const tagOption = document.createElement("option");
+		tagOption.value = tag;
+		tagOption.textContent = tag;
+		tagSelect.appendChild(tagOption);
+	});
+
+	const currentTag = typeof idea.tag === "string" ? idea.tag : "";
+	tagSelect.value = currentTag;
+
+	tagSelect.addEventListener("change", async (event) => {
+		const selectedValue = event.target.value;
+		const updatedIdeas = await window.ideaAPI.updateIdeaTag(idea.id, selectedValue);
+		allIdeas = Array.isArray(updatedIdeas) ? updatedIdeas : allIdeas;
+		renderIdeas(searchInput.value);
+	});
 
 	const deleteButton = document.createElement("button");
 	deleteButton.type = "button";
@@ -85,7 +110,7 @@ function createIdeaCard(idea) {
 		});
 	});
 
-	cardTop.appendChild(tagLabel);
+	cardTop.appendChild(tagSelect);
 	cardTop.appendChild(deleteButton);
 
 	const ideaText = document.createElement("p");
@@ -169,6 +194,7 @@ function renderIdeas(searchTerm = "") {
 
 window.addEventListener("DOMContentLoaded", async () => {
 	allIdeas = await window.ideaAPI.getIdeas();
+	allTags = await window.ideaAPI.getTags();
 	renderIdeas();
 });
 

@@ -118,6 +118,32 @@ ipcMain.handle("delete-idea", async (event, ideaId) => {
 	}
 });
 
+ipcMain.handle("update-idea-tag", async (event, { ideaId, newTag }) => {
+	await ensureIdeasFile();
+
+	const fileContents = await fs.promises.readFile(ideasFilePath, "utf8");
+	const ideas = JSON.parse(fileContents);
+	const updatedIdeas = Array.isArray(ideas)
+		? ideas.map((idea) => {
+				if (idea && idea.id === ideaId) {
+					return {
+						...idea,
+						tag: newTag || null,
+					};
+				}
+				return idea;
+		  })
+		: [];
+
+	await fs.promises.writeFile(
+		ideasFilePath,
+		JSON.stringify(updatedIdeas, null, 2),
+		"utf8",
+	);
+
+	return updatedIdeas;
+});
+
 ipcMain.handle("open-manager-window", () => {
 	createManagerWindow();
 });
