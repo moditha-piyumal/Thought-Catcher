@@ -1,5 +1,6 @@
 const captureInput = document.getElementById("captureInput");
 const captureButton = document.getElementById("captureButton");
+const viewIdeasButton = document.getElementById("viewIdeasButton");
 const tagSelect = document.getElementById("tagSelect");
 const newTagInput = document.getElementById("newTagInput");
 const addTagButton = document.getElementById("addTagButton");
@@ -98,6 +99,12 @@ captureInput.addEventListener("keydown", (event) => {
 
 captureButton.addEventListener("click", () => {
 	captureIdea();
+});
+
+viewIdeasButton.addEventListener("click", () => {
+	window.ideaAPI.openManagerWindow().catch((error) => {
+		console.error("Failed to open manager window:", error);
+	});
 });
 
 addTagButton.addEventListener("click", () => {
