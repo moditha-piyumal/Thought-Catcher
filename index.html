@@ -84,6 +84,16 @@
         #addTagButton {
             margin-top: 0;
         }
+
+        .actions-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .actions-row button {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -105,7 +115,10 @@
             </div>
         </div>
 
-        <button id="captureButton" type="button">Capture</button>
+        <div class="actions-row">
+            <button id="captureButton" type="button">Capture</button>
+            <button id="viewIdeasButton" type="button">View Ideas</button>
+        </div>
     </div>
     <script src="renderer.js"></script>
 </body>

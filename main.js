@@ -6,6 +6,8 @@ const ideasFilePath = path.join(app.getPath("userData"), "ideas.json");
 const draftFilePath = path.join(app.getPath("userData"), "draft.json");
 const tagsFilePath = path.join(app.getPath("userData"), "tags.json");
 
+let managerWindow = null;
+
 async function ensureIdeasFile() {
 	try {
 		await fs.promises.access(ideasFilePath);
@@ -38,6 +40,32 @@ function createWindow() {
 	win.loadFile("index.html");
 }
 
+function createManagerWindow() {
+	if (managerWindow && !managerWindow.isDestroyed()) {
+		managerWindow.show();
+		managerWindow.focus();
+		return;
+	}
+
+	managerWindow = new BrowserWindow({
+		width: 900,
+		height: 700,
+		resizable: true,
+		autoHideMenuBar: true,
+		webPreferences: {
+			contextIsolation: true,
+			nodeIntegration: false,
+			preload: path.join(__dirname, "preload.js"),
+		},
+	});
+
+	managerWindow.loadFile("manager.html");
+
+	managerWindow.on("closed", () => {
+		managerWindow = null;
+	});
+}
+
 ipcMain.handle("save-idea", async (event, payload) => {
 	await ensureIdeasFile();
 
@@ -56,6 +84,34 @@ ipcMain.handle("save-idea", async (event, payload) => {
 	ideas.push(idea);
 	await fs.promises.writeFile(ideasFilePath, JSON.stringify(ideas, null, 2), "utf8");
 	return idea;
+});
+
+ipcMain.handle("get-ideas", async () => {
+	try {
+		const fileContents = await fs.promises.readFile(ideasFilePath, "utf8");
+		const ideas = JSON.parse(fileContents);
+		return Array.isArray(ideas) ? ideas : [];
+	} catch {
+		return [];
+	}
+});
+
+ipcMain.handle("delete-idea", async (event, ideaId) => {
+	try {
+		const fileContents = await fs.promises.readFile(ideasFilePath, "utf8");
+		const ideas = JSON.parse(fileContents);
+		const filteredIdeas = Array.isArray(ideas)
+			? ideas.filter((idea) => idea && idea.id !== ideaId)
+			: [];
+		await fs.promises.writeFile(ideasFilePath, JSON.stringify(filteredIdeas, null, 2), "utf8");
+		return filteredIdeas;
+	} catch {
+		return [];
+	}
+});
+
+ipcMain.handle("open-manager-window", () => {
+	createManagerWindow();
 });
 
 ipcMain.handle("get-tags", async () => {
