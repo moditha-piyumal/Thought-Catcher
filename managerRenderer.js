@@ -62,6 +62,7 @@ async function deleteTag(tagName) {
 
 	await window.ideaAPI.deleteTag(tagName);
 	allIdeas = await window.ideaAPI.getIdeas();
+	allTags = await window.ideaAPI.getTags();
 	renderIdeas(searchInput.value);
 }
 
