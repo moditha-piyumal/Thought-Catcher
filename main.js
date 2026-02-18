@@ -216,6 +216,10 @@ ipcMain.handle("delete-tag", async (event, tagName) => {
 		JSON.stringify(updatedIdeas, null, 2),
 		"utf8",
 	);
+
+	BrowserWindow.getAllWindows().forEach((window) => {
+		window.webContents.send("tags-updated");
+	});
 });
 
 ipcMain.handle("save-draft", async (event, text) => {

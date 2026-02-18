@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld("ideaAPI", {
 	getTags: () => ipcRenderer.invoke("get-tags"),
 	createTag: (tagName) => ipcRenderer.invoke("create-tag", tagName),
 	deleteTag: (tagName) => ipcRenderer.invoke("delete-tag", tagName),
+	onTagsUpdated: (callback) => ipcRenderer.on("tags-updated", callback),
 });

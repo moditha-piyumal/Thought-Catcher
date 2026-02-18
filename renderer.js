@@ -81,6 +81,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 	await populateTags();
 
+	window.ideaAPI.onTagsUpdated(async () => {
+		await populateTags();
+	});
+
 	captureInput.focus();
 	const cursorPosition = captureInput.value.length;
 	captureInput.setSelectionRange(cursorPosition, cursorPosition);
